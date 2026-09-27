@@ -69,7 +69,9 @@ async function startFill(): Promise<StartFillResponse> {
   try {
     result = await chrome.tabs.sendMessage(tab.id, {
       type: "FILL_PAGE",
-      resume: state.resume
+      resume: state.resume,
+      jobDescription: state.jobDescription,
+      resumeText: state.resumeText
     })
   } catch {
     return {
@@ -90,7 +92,11 @@ async function startFill(): Promise<StartFillResponse> {
     ok: true,
     result: {
       filled: isRecord(result) && Array.isArray(result.filled) ? result.filled : [],
-      skipped: isRecord(result) && Array.isArray(result.skipped) ? result.skipped : []
+      skipped: isRecord(result) && Array.isArray(result.skipped) ? result.skipped : [],
+      answers:
+        isRecord(result) && (result.answers === "ai" || result.answers === "draft" || result.answers === "none")
+          ? result.answers
+          : "none"
     },
     usageCount: state.usageCount
   }
@@ -116,7 +122,10 @@ export function registerBackground() {
         sendResponse({ answer: null })
         return true
       }
-      void answerWorkdayQuestion(prompt, resume as ResumeProfile).then((answer) => {
+      void answerWorkdayQuestion(prompt, resume as ResumeProfile, {
+        jobDescription: typeof message.jobDescription === "string" ? message.jobDescription : "",
+        resumeText: typeof message.resumeText === "string" ? message.resumeText : ""
+      }).then((answer) => {
         sendResponse({ answer })
       })
       return true

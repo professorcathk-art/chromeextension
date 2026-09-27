@@ -44,6 +44,7 @@ export type FillFieldResult = {
 export type FillPageResult = {
   filled: FillFieldResult[]
   skipped: string[]
+  answers: "ai" | "draft" | "none"
 }
 
 export const emptyResume = (): ResumeProfile => ({

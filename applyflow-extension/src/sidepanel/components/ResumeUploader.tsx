@@ -1,16 +1,21 @@
 import { useState } from "react"
 
+import { parseResumeText } from "~/lib/ai-agent"
+import { normalizeResume } from "~/lib/resume-format"
 import { resumeFromText, readResumeFile } from "~/lib/resume-text"
 import type { ResumeProfile } from "~/lib/types"
 
 export function ResumeUploader({
   resume,
-  onChange
+  onChange,
+  onText
 }: {
   resume: ResumeProfile
   onChange: (resume: ResumeProfile) => void
+  onText: (text: string) => void
 }) {
   const [error, setError] = useState<string | null>(null)
+  const [note, setNote] = useState<string | null>(null)
   const info = resume.personal_info
 
   function update(field: keyof ResumeProfile["personal_info"], value: string) {
@@ -25,9 +30,21 @@ export function ResumeUploader({
       return
     }
     setError(null)
+    setNote(null)
     try {
       const text = await readResumeFile(file)
-      onChange(resumeFromText(text))
+      const local = resumeFromText(text)
+      local.preferences.open_to_recruiters = resume.preferences.open_to_recruiters
+      const polished = await parseResumeText(text)
+      const next = normalizeResume(polished, local)
+      next.preferences.open_to_recruiters = resume.preferences.open_to_recruiters
+      onText(text.slice(0, 20000))
+      onChange(next)
+      setNote(
+        polished
+          ? "Resume read and cleaned. Check the details below. They stay saved on this computer."
+          : "Resume read on this computer and saved. Check the details below."
+      )
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "That file could not be read.")
     }
@@ -37,12 +54,13 @@ export function ResumeUploader({
     <section className="flex flex-col gap-3">
       <h2 className="text-sm font-medium">Your details</h2>
       {error ? <p className="text-sm text-red-700">{error}</p> : null}
+      {note ? <p className="text-sm text-zinc-600">{note}</p> : null}
       <label className="flex min-h-11 cursor-pointer items-center justify-center rounded-lg border border-dashed border-zinc-300 bg-white px-3 text-sm">
-        Upload a text resume
+        Upload a PDF, Word, or text resume
         <input
           className="sr-only"
           type="file"
-          accept=".txt,text/plain"
+          accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
           onChange={(event) => void onFile(event.target.files?.[0])}
         />
       </label>

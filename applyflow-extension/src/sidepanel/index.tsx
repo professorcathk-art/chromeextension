@@ -13,6 +13,9 @@ import { Settings } from "./components/Settings"
 
 export function SidePanel() {
   const [resume, setResume] = useState<ResumeProfile>(emptyResume())
+  const [resumeText, setResumeText] = useState("")
+  const [jobDescription, setJobDescription] = useState("")
+  const [saved, setSaved] = useState(false)
   const [usageCount, setUsageCount] = useState(0)
   const [status, setStatus] = useState<"free" | "pro" | "cancelled">("free")
   const [email, setEmail] = useState("")
@@ -28,6 +31,8 @@ export function SidePanel() {
   useEffect(() => {
     void readState().then((state) => {
       setResume(state.resume)
+      setResumeText(state.resumeText)
+      setJobDescription(state.jobDescription)
       setUsageCount(state.usageCount)
       setStatus(state.subscriptionStatus)
       setEmail(state.email || state.resume.personal_info.email)
@@ -44,11 +49,13 @@ export function SidePanel() {
         ...resume,
         preferences: { ...resume.preferences, open_to_recruiters: resume.preferences.open_to_recruiters }
       },
+      resumeText,
+      jobDescription,
       usageCount,
       subscriptionStatus: status,
       email
-    })
-  }, [ready, resume, usageCount, status, email])
+    }).then(() => setSaved(true))
+  }, [ready, resume, resumeText, jobDescription, usageCount, status, email])
 
   async function fill() {
     setBusy(true)
@@ -64,7 +71,17 @@ export function SidePanel() {
     }
     setUsageCount(response.usageCount)
     const count = response.result.filled.length
-    setMessage(count > 0 ? `Filled ${count} fields. Review the page, then submit it yourself.` : "No matching Workday fields were found on this page.")
+    if (count === 0) {
+      setMessage("No matching Workday fields were found on this page.")
+      return
+    }
+    const tailored =
+      response.result.answers === "ai"
+        ? " Written answers were tailored to the job description."
+        : response.result.answers === "draft"
+          ? " Written answers use your resume. Connect AI to tailor them to the job description."
+          : ""
+    setMessage(`Filled ${count} fields.${tailored} Review the page, then submit it yourself.`)
   }
 
   async function upgrade() {
@@ -104,7 +121,17 @@ export function SidePanel() {
         </p>
       </header>
       {!ready ? <p className="text-sm text-zinc-600">Loading your details...</p> : null}
-      <ResumeUploader resume={resume} onChange={setResume} />
+      {ready && saved ? <p className="text-sm text-zinc-600">Saved on this computer.</p> : null}
+      <ResumeUploader resume={resume} onChange={setResume} onText={setResumeText} />
+      <label className="flex flex-col gap-1 text-sm">
+        Job description
+        <textarea
+          className="min-h-28 rounded-lg border border-zinc-300 px-3 py-2"
+          value={jobDescription}
+          placeholder="Paste the posting. ApplyFlow also reads it when it is on the Workday page."
+          onChange={(event) => setJobDescription(event.target.value.slice(0, 8000))}
+        />
+      </label>
       <AutoFillButton busy={busy} onClick={() => void fill()} />
       {message ? <p className="text-sm text-zinc-700">{message}</p> : null}
       <Settings

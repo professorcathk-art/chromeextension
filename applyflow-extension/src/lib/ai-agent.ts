@@ -4,7 +4,8 @@ import { getSupabase } from "./supabase"
 
 export async function answerWorkdayQuestion(
   question: string,
-  resume: ResumeProfile
+  resume: ResumeProfile,
+  context: { jobDescription: string; resumeText: string }
 ): Promise<string | null> {
   const supabase = getSupabase()
   if (!supabase) {
@@ -12,7 +13,12 @@ export async function answerWorkdayQuestion(
   }
 
   const { data, error } = await supabase.functions.invoke("answer-question", {
-    body: { question, resume }
+    body: {
+      question,
+      resume,
+      jobDescription: context.jobDescription.slice(0, 8000),
+      resumeText: context.resumeText.slice(0, 12000)
+    }
   })
 
   if (error || typeof data !== "object" || data === null) {

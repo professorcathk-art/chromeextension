@@ -10,9 +10,11 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.86.0",
+    "mammoth": "^1.13.0",
     "plasmo": "0.90.5",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "unpdf": "^1.8.1"
   },
   "devDependencies": {
     "@types/chrome": "0.0.258",
@@ -25,7 +27,11 @@
   },
   "manifest": {
     "name": "ApplyFlow AI",
-    "permissions": ["storage", "sidePanel", "activeTab"],
+    "permissions": [
+      "storage",
+      "sidePanel",
+      "activeTab"
+    ],
     "host_permissions": [
       "https://*.myworkday.com/*",
       "https://*.myworkdayjobs.com/*",

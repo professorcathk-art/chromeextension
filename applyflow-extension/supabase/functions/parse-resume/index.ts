@@ -40,7 +40,7 @@ Deno.serve(async (request) => {
         {
           role: "system",
           content:
-            "Extract a resume into JSON with personal_info, work_experience, education, skills, and preferences. Leave unknown fields empty. Do not invent facts."
+            "The text may have broken line breaks from a PDF or Word file. Reconstruct it into JSON with personal_info, work_experience, education, skills, and preferences. Repair spacing and hyphenation. Leave unknown fields empty. Do not invent facts."
         },
         { role: "user", content: text }
       ]

@@ -39,11 +39,11 @@ Deno.serve(async (request) => {
         {
           role: "system",
           content:
-            "Write a job-application answer of about 100 words. Use only facts in the candidate profile. Do not invent employers, degrees, or dates."
+            "Write a job-application answer of about 100 words. Tailor it to the job description. Use only facts in the candidate profile and resume text. Do not invent employers, degrees, dates, or metrics. If a fact is missing, leave it out."
         },
         {
           role: "user",
-          content: `Question: ${question}\n\nCandidate:\n${JSON.stringify(body.resume ?? {})}`
+          content: `Question: ${question}\n\nJob description:\n${typeof body.jobDescription === "string" ? body.jobDescription.slice(0, 8000) : ""}\n\nCandidate:\n${JSON.stringify(body.resume ?? {})}\n\nResume text:\n${typeof body.resumeText === "string" ? body.resumeText.slice(0, 12000) : ""}`
         }
       ]
     })

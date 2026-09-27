@@ -1,3 +1,4 @@
+import { isSensitiveQuestion } from "~/lib/resume-format"
 import type { ResumeProfile } from "~/lib/types"
 
 import { fieldLabel, setReactInputValue } from "./utils"
@@ -153,7 +154,7 @@ export class WorkdayFiller {
         continue
       }
       const prompt = fieldLabel(area)
-      if (prompt.length < 12) {
+      if (prompt.length < 12 || isSensitiveQuestion(prompt)) {
         continue
       }
       questions.push({ element: area, prompt })

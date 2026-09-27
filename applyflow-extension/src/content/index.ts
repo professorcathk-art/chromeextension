@@ -1,3 +1,4 @@
+import { draftAnswer } from "~/lib/resume-format"
 import type { FillPageResult, ResumeProfile } from "~/lib/types"
 
 import { WorkdayFiller } from "./workday-dom"
@@ -6,6 +7,8 @@ import { setReactInputValue } from "./utils"
 type FillMessage = {
   type: "FILL_PAGE"
   resume: ResumeProfile
+  jobDescription?: string
+  resumeText?: string
 }
 
 type AnswerMessage = {
@@ -21,11 +24,25 @@ function isFillMessage(value: unknown): value is FillMessage {
   return message.type === "FILL_PAGE" && typeof message.resume === "object"
 }
 
-async function askForAnswer(prompt: string, resume: ResumeProfile) {
+function pageJobDescription() {
+  const node = document.querySelector(
+    '[data-automation-id="jobPostingDescription"], [data-automation-id="job-posting-description"]'
+  )
+  return (node?.textContent ?? "").replace(/\s+/g, " ").trim().slice(0, 8000)
+}
+
+async function askForAnswer(
+  prompt: string,
+  resume: ResumeProfile,
+  jobDescription: string,
+  resumeText: string
+) {
   const response = await chrome.runtime.sendMessage({
     type: "ANSWER_QUESTION",
     prompt,
-    resume
+    resume,
+    jobDescription,
+    resumeText
   })
   if (typeof response !== "object" || response === null) {
     return null
@@ -47,18 +64,31 @@ export function registerWorkdayContent() {
     void (async () => {
       const result: FillPageResult = {
         filled: standard.filled.map((field) => ({ label: field.label, filled: true })),
-        skipped: [...standard.skipped]
+        skipped: [...standard.skipped],
+        answers: "none"
       }
+      const jobDescription = message.jobDescription?.trim() || pageJobDescription()
+      const resumeText = message.resumeText ?? ""
+      let usedAi = false
+      let usedDraft = false
 
       for (const question of questions) {
-        const answer = await askForAnswer(question.prompt, message.resume)
+        const generated = await askForAnswer(question.prompt, message.resume, jobDescription, resumeText)
+        const answer = generated ?? draftAnswer(question.prompt, message.resume, jobDescription)
         if (!answer) {
           result.skipped.push(question.prompt)
           continue
         }
+        if (generated) {
+          usedAi = true
+        } else {
+          usedDraft = true
+        }
         setReactInputValue(question.element, answer)
         result.filled.push({ label: question.prompt, filled: true })
       }
+
+      result.answers = usedAi ? "ai" : usedDraft ? "draft" : "none"
 
       sendResponse(result)
     })()
