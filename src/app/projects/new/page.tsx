@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
-import { NewApplicationForm } from "@/components/applications/new-application-form"
+import { ApplicationForm } from "@/components/ApplicationForm"
 import { Page } from "@/components/layout/page"
 import { SetupNotice } from "@/components/setup-notice"
 import {
@@ -32,11 +32,11 @@ export default async function NewApplicationPage() {
         <CardHeader>
           <CardTitle>Job details</CardTitle>
           <CardDescription>
-            Title is required. Company and link can wait if you don't have them yet.
+            Your saved name and contact details fill in below. Add the job, then save.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <NewApplicationForm />
+          <ApplicationForm />
         </CardContent>
       </Card>
     </Page>

@@ -22,6 +22,12 @@ export function NewApplicationForm() {
           <AlertDescription>{state.message}</AlertDescription>
         </Alert>
       ) : null}
+      {state.status === "success" ? (
+        <div data-result className="rounded-lg border bg-muted/40 p-4">
+          <h2 className="text-base font-medium">Application saved</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{state.message}</p>
+        </div>
+      ) : null}
       <div className="flex flex-col gap-2">
         <Label htmlFor="title">Job title</Label>
         <Input

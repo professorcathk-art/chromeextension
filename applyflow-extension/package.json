@@ -1,0 +1,36 @@
+{
+  "name": "applyflow",
+  "displayName": "ApplyFlow AI",
+  "version": "0.0.1",
+  "description": "Fill Workday job applications from your saved resume.",
+  "scripts": {
+    "dev": "plasmo dev",
+    "build": "plasmo build",
+    "package": "plasmo package"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.86.0",
+    "plasmo": "0.90.5",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "0.0.258",
+    "@types/node": "20.11.5",
+    "@types/react": "18.2.48",
+    "@types/react-dom": "18.2.18",
+    "postcss": "8.4.33",
+    "tailwindcss": "3.4.1",
+    "typescript": "5.3.3"
+  },
+  "manifest": {
+    "name": "ApplyFlow AI",
+    "permissions": ["storage", "sidePanel", "activeTab"],
+    "host_permissions": [
+      "https://*.myworkday.com/*",
+      "https://*.myworkdayjobs.com/*",
+      "https://*.workday.com/*",
+      "https://*.supabase.co/*"
+    ]
+  }
+}

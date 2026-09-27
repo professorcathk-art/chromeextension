@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { ApplicationForm } from "@/components/ApplicationForm"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -32,7 +33,7 @@ const steps = [
 
 export default function HomePage() {
   return (
-    <main className="flex flex-1 flex-col">
+    <main className="flex flex-1 flex-col overflow-x-hidden">
       <section className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-16 md:py-24">
         <Badge variant="secondary" className="w-fit">
           For job applicants
@@ -55,7 +56,20 @@ export default function HomePage() {
           </Button>
         </div>
       </section>
-      <section className="mx-auto grid w-full max-w-5xl gap-4 px-4 pb-20 md:grid-cols-3">
+      <section className="mx-auto w-full max-w-5xl px-4 pb-10">
+        <Card className="max-w-xl">
+          <CardHeader>
+            <CardTitle>Start an application</CardTitle>
+            <CardDescription>
+              Your saved details fill the answers. Add the job, then save.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ApplicationForm />
+          </CardContent>
+        </Card>
+      </section>
+      <section className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-4 px-4 pb-20 md:grid-cols-3">
         {steps.map((step) => (
           <Card key={step.title}>
             <CardHeader>

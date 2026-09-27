@@ -1,6 +1,5 @@
 "use server"
 
-import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { getSession } from "@/lib/supabase/session"
 import { isHttpUrl, readField } from "@/lib/parse"
@@ -20,7 +19,10 @@ export async function createApplication(
   }
 
   if (session.status === "signed_out") {
-    redirect("/login")
+    return {
+      status: "error",
+      message: "Sign in first, then save this application.",
+    }
   }
 
   const title = readField(formData, "title")
@@ -70,14 +72,19 @@ export async function createApplication(
     }
   }
 
+  const summary = company
+    ? `Started an application for ${title} at ${company}.`
+    : `Started an application for ${title}.`
+
   await supabase.from("activity_logs").insert({
     user_id: session.user.id,
     entity_id: data.id,
     event_type: "application.created",
-    message: company
-      ? `Started an application for ${title} at ${company}.`
-      : `Started an application for ${title}.`,
+    message: summary,
   })
 
-  redirect("/dashboard?created=1")
+  return {
+    status: "success",
+    message: `${summary} You can open it from your dashboard.`,
+  }
 }
